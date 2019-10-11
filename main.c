@@ -32,11 +32,27 @@ int main(int argc, char *argv[]) {
 void run(Editor *editor) {
     bool running = true;
     while (running) {
+        editor_display(editor);
+
         int key = getch();
 
         switch (key) {
         case 3: // Ctrl-C
-            quit(0);
+        case 17: // Ctrl-Q
+        case 24: // Ctrl-X
+            running = false;
+            break;
+
+        case 19: // Ctrl-S
+            if (editor->file != NULL) {
+                string_write_file(editor->file, editor->string);
+            } else {
+                // TODO
+            }
+            break;
+
+        case 4: // Ctrl-D
+            string_append(&editor->string, string_copy(editor->string));
             break;
 
         case 127: // Backspace
@@ -46,8 +62,6 @@ void run(Editor *editor) {
         default:
             string_append(&editor->string, (char) key);
         }
-
-        editor_display(editor);
     }
 }
 
