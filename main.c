@@ -39,9 +39,7 @@ void run(Editor *editor) {
         int key = getch();
 
         switch (key) {
-        case 3: // Ctrl-C
         case 17: // Ctrl-Q
-        case 24: // Ctrl-X
             running = false;
             break;
 
@@ -70,6 +68,13 @@ void run(Editor *editor) {
                         editor->x = string_get_line_length(editor->string, editor->y);
                     } else --editor->x;
                 }
+            }
+            break;
+
+        case 330: // Delete
+            {
+                int position = string_get_offset(editor->string, editor->y) + editor->x;
+                string_pop(&editor->string, position);
             }
             break;
 
