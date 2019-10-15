@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <ncurses.h>
 
 #include "editor.h"
@@ -6,6 +7,9 @@
 
 void editor_display(Editor *editor) {
 	clear();
-	addstr(string_to_char_array(editor->string));
+	char *string = string_to_char_array(editor->string);
+	addstr(string);
+	free(string);
+	move(editor->y, editor->x);
 	refresh();
 }

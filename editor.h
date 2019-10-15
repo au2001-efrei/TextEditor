@@ -6,6 +6,7 @@
 typedef struct Editor {
 	char *file;
 	String string;
+	int x, y;
 } Editor;
 
 void editor_display(Editor *editor);

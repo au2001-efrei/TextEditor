@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "string.h"
 
@@ -75,6 +76,82 @@ char *string_to_char_array(String string) {
     return array;
 }
 
+char *string_get_line(String string, int y) {
+    int line = 0;
+    Character *current = string.first;
+    while (current != NULL && line < y) {
+        if (current->data == '\n') ++line;
+
+        current = current->next;
+    }
+
+    int length = 0;
+    Character *current2 = current;
+    while (current2 != NULL && current2->data != '\n') {
+        current2 = current2->next;
+        ++length;
+    }
+
+    char *array = (char *) malloc(sizeof(char) * (length + 2));
+
+    int i = 0;
+    while (current != NULL && current->data != '\n') {
+        array[i] = current->data;
+
+        current = current->next;
+        ++i;
+    }
+
+    array[length] = '\n';
+    array[length + 1] = '\0';
+
+    return array;
+}
+
+int string_get_line_count(String string) {
+    int count = 1;
+    Character *current = string.first;
+    while (current != NULL) {
+        if (current->data == '\n') ++count;
+
+        current = current->next;
+    }
+
+    return count;
+}
+
+int string_get_offset(String string, int y) {
+    int line = 0, offset = 0;
+    Character *current = string.first;
+    while (current != NULL && line < y) {
+        if (current->data == '\n') ++line;
+
+        current = current->next;
+        ++offset;
+    }
+
+    return offset;
+}
+
+int string_get_line_length(String string, int y) {
+    int line = 0;
+    Character *current = string.first;
+    while (current != NULL && line < y) {
+        if (current->data == '\n') ++line;
+
+        current = current->next;
+    }
+
+    int length = 0;
+    Character *current2 = current;
+    while (current2 != NULL && current2->data != '\n') {
+        current2 = current2->next;
+        ++length;
+    }
+
+    return length;
+}
+
 void string_append(String *string, char c) {
     if (string->last != NULL) {
         string->last->next = (Character *) malloc(sizeof(Character));
@@ -92,6 +169,47 @@ void string_append(String *string, char c) {
         string->first = string->last;
 
         string->length = 1;
+    }
+}
+
+void string_concatenate(String *string, char *string2, int position) {
+    Character *current = NULL;
+
+    if (string->first != NULL && position > 0) {
+        current = string->first;
+
+        int i = 1;
+        while (i < position && current->next != NULL) {
+            current = current->next;
+            ++i;
+        }
+    }
+
+    Character *next = position > 0 ? current->next : string->first;
+
+    int length = strlen(string2);
+    for (int i = 0; i < length; ++i) {
+        if (current == NULL) {
+            current = (Character *) malloc(sizeof(Character));
+            current->data = string2[i];
+            current->next = NULL;
+            current->prev = NULL;
+            string->first = current;
+        } else {
+            current->next = (Character *) malloc(sizeof(Character));
+            current->next->prev = current;
+            current = current->next;
+            current->data = string2[i];
+            current->next = NULL;
+        }
+
+        ++string->length;
+    }
+
+    if (next == NULL) string->last = current;
+    else if (current != NULL) {
+        next->prev = current;
+        current->next = next;
     }
 }
 
@@ -115,4 +233,34 @@ char string_pop_last(String *string) {
     }
 
     return c;
+}
+
+String string_copy(String string) {
+    String copy;
+
+    copy.length = string.length;
+    copy.first = NULL;
+    copy.last = NULL;
+
+    Character *current = NULL, *currentRead = string.first;
+    while (currentRead != NULL) {
+        if (current == NULL) {
+            current = (Character *) malloc(sizeof(Character));
+            current->data = currentRead->data;
+            current->next = NULL;
+            current->prev = NULL;
+            copy.first = current;
+        } else {
+            current->next = (Character *) malloc(sizeof(Character));
+            current->next->prev = current;
+            current = current->next;
+            current->data = currentRead->data;
+            current->next = NULL;
+        }
+
+        copy.last = current;
+        currentRead = currentRead->next;
+    }
+
+    return copy;
 }
