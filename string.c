@@ -152,24 +152,35 @@ int string_get_line_length(String string, int y) {
     return length;
 }
 
-void string_append(String *string, char c) {
-    if (string->last != NULL) {
-        string->last->next = (Character *) malloc(sizeof(Character));
-        string->last->next->prev = string->last;
-        string->last = string->last->next;
-        string->last->data = c;
-        string->last->next = NULL;
-
+void string_insert(String *string, char c, int position) {
+    if (position <= 0) {
+        Character *temp = (Character *) malloc(sizeof(Character));
+        temp->data = c;
+        temp->prev = NULL;
+        temp->next = string->first;
+        string->first->prev = temp;
+        string->first = temp;
         ++string->length;
-    } else {
-        string->last = (Character *) malloc(sizeof(Character));
-        string->last->data = c;
-        string->last->next = NULL;
-        string->last->prev = NULL;
-        string->first = string->last;
-
-        string->length = 1;
+        return;
     }
+
+    int i = 0;
+    Character *current = string->first;
+    while (i < position && current != NULL) {
+        current = current->next;
+        ++i;
+    }
+
+    if (current == NULL) return;
+
+    Character *temp = (Character *) malloc(sizeof(Character));
+    temp->data = c;
+    temp->prev = current;
+    temp->next = current->next;
+    current->next->prev = temp;
+    current->next = temp;
+
+    ++string->length;
 }
 
 void string_concatenate(String *string, char *string2, int position) {
@@ -213,24 +224,46 @@ void string_concatenate(String *string, char *string2, int position) {
     }
 }
 
-char string_pop_last(String *string) {
-    if (string->last == NULL) return '\0';
+char string_pop(String *string, int position) {
+    if (string->first == NULL) return '\0';
 
-    char c = string->last->data;
+    if (position <= 0) {
+        char c = string->first->data;
 
-    if (string->last->prev != NULL) {
-        string->last = string->last->prev;
-        free(string->last->next);
-        string->last->next = NULL;
+        if (string->first->next != NULL) {
+            string->first = string->first->next;
+            free(string->first->prev);
+            string->first->prev = NULL;
+        } else {
+            free(string->first);
+            string->first = NULL;
+            string->last = NULL;
+        }
 
-        --string->length;
-    } else {
-        free(string->last);
-        string->last = NULL;
-        string->first = NULL;
-
-        string->length = 0;
+        return c;
     }
+
+    Character *current = string->first;
+
+    int i = 1;
+    while (i < position && current->next != NULL) {
+        current = current->next;
+        ++i;
+    }
+
+    if (current->next == NULL) return '\0';
+
+    char c = current->next->data;
+    Character *next = current->next->next;
+
+    if (next != NULL)
+        next->prev = current;
+    else string->last = current;
+
+    free(current->next);
+    current->next = next;
+
+    --string->length;
 
     return c;
 }

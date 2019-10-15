@@ -24,8 +24,8 @@ int string_get_offset(String string, int y);
 int string_get_line_length(String string, int y);
 
 void string_concatenate(String *string, char *string2, int position);
-void string_append(String *string, char c);
-char string_pop_last(String *string);
+void string_insert(String *string, char c, int position);
+char string_pop(String *string, int position);
 
 String string_copy(String string);
 

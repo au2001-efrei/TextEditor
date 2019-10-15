@@ -62,10 +62,15 @@ void run(Editor *editor) {
             break;
 
         case 127: // Backspace
-            if (string_pop_last(&editor->string) == '\n') { // TODO: Remove at cursor
-                --editor->y;
-                editor->x = string_get_line_length(editor->string, editor->y);
-            } else --editor->x;
+            {
+                int position = string_get_offset(editor->string, editor->y) + editor->x;
+                if (position > 0) {
+                    if (string_pop(&editor->string, position - 1) == '\n') { // TODO: Remove at cursor
+                        --editor->y;
+                        editor->x = string_get_line_length(editor->string, editor->y);
+                    } else --editor->x;
+                }
+            }
             break;
 
         case 258: // Down arrow
@@ -105,12 +110,15 @@ void run(Editor *editor) {
             break;
 
         default:
-            string_append(&editor->string, (char) key); // TODO: Insert at cursor
+            {
+                int position = string_get_offset(editor->string, editor->y) + editor->x;
+                string_insert(&editor->string, (char) key, position - 1); // TODO: Insert at cursor
 
-            if (key == '\n') {
-                ++editor->y;
-                editor->x = 0;
-            } else ++editor->x;
+                if (key == '\n') {
+                    ++editor->y;
+                    editor->x = 0;
+                } else ++editor->x;
+            }
         }
     }
 }
