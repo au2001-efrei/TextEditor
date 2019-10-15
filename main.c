@@ -63,7 +63,7 @@ void run(Editor *editor) {
             {
                 int position = string_get_offset(editor->string, editor->y) + editor->x;
                 if (position > 0) {
-                    if (string_pop(&editor->string, position - 1) == '\n') { // TODO: Remove at cursor
+                    if (string_pop(&editor->string, position - 1) == '\n') {
                         --editor->y;
                         editor->x = string_get_line_length(editor->string, editor->y);
                     } else --editor->x;
@@ -117,7 +117,7 @@ void run(Editor *editor) {
         default:
             {
                 int position = string_get_offset(editor->string, editor->y) + editor->x;
-                string_insert(&editor->string, (char) key, position - 1); // TODO: Insert at cursor
+                string_insert(&editor->string, (char) key, position - 1);
 
                 if (key == '\n') {
                     ++editor->y;

@@ -8,7 +8,7 @@ typedef struct Character {
 } Character;
 
 typedef struct String {
-	int length;
+    int length;
     Character *first;
     Character *last;
 } String;
