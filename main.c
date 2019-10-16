@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <stdbool.h>
 #include <ncurses.h>
 
@@ -72,13 +73,6 @@ void run(Editor *editor) {
             }
             break;
 
-        case 330: // Delete
-            {
-                int position = string_get_offset(editor->string, editor->y) + editor->x;
-                string_pop(&editor->string, position);
-            }
-            break;
-
         case 258: // Down arrow
             if (editor->y < string_get_line_count(editor->string) - 1) {
                 ++editor->y;
@@ -115,8 +109,15 @@ void run(Editor *editor) {
             } else ++editor->x;
             break;
 
-        default:
+        case 330: // Delete
             {
+                int position = string_get_offset(editor->string, editor->y) + editor->x;
+                string_pop(&editor->string, position);
+            }
+            break;
+
+        default:
+            if ((key >= 32 && key <= 126) || (key >= 128 && key <= 255)) {
                 int position = string_get_offset(editor->string, editor->y) + editor->x;
                 string_insert(&editor->string, (char) key, position);
 
@@ -124,6 +125,11 @@ void run(Editor *editor) {
                     ++editor->y;
                     editor->x = 0;
                 } else ++editor->x;
+            } else {
+                clear();
+                printw("Unknow key (code %d): %c\n", key, key);
+                refresh();
+                sleep(1);
             }
         }
     }
