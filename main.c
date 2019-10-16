@@ -15,6 +15,7 @@ int main(int argc, char *argv[]) {
 
     Editor editor;
     editor.file = NULL;
+    editor.string.length = 0;
     editor.string.first = NULL;
     editor.string.last = NULL;
     editor.x = 0;
@@ -117,7 +118,7 @@ void run(Editor *editor) {
         default:
             {
                 int position = string_get_offset(editor->string, editor->y) + editor->x;
-                string_insert(&editor->string, (char) key, position - 1);
+                string_insert(&editor->string, (char) key, position);
 
                 if (key == '\n') {
                     ++editor->y;

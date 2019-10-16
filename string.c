@@ -158,13 +158,13 @@ void string_insert(String *string, char c, int position) {
         temp->data = c;
         temp->prev = NULL;
         temp->next = string->first;
-        string->first->prev = temp;
+        if (string->first != NULL) string->first->prev = temp;
         string->first = temp;
         ++string->length;
         return;
     }
 
-    int i = 0;
+    int i = 1;
     Character *current = string->first;
     while (i < position && current != NULL) {
         current = current->next;
@@ -177,7 +177,7 @@ void string_insert(String *string, char c, int position) {
     temp->data = c;
     temp->prev = current;
     temp->next = current->next;
-    current->next->prev = temp;
+    if (temp->next != NULL) temp->next->prev = temp;
     current->next = temp;
 
     ++string->length;
