@@ -299,3 +299,20 @@ String string_copy(String string) {
 
     return copy;
 }
+
+void string_free(String *string) {
+    string->length = 0;
+
+    Character *current = string->first;
+    if (current == NULL) return;
+
+    while (current->next != NULL) {
+        current = current->next;
+        free(current->prev);
+    }
+
+    free(current);
+
+    string->first = NULL;
+    string->last = NULL;
+}

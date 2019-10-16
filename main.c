@@ -10,6 +10,9 @@
 
 int main(int argc, char *argv[]) {
     initscr();
+    start_color();
+    attron(A_BOLD);
+
     raw();
     keypad(stdscr, TRUE);
     noecho();
@@ -49,8 +52,33 @@ void run(Editor *editor) {
             }
             break;
 
+        case 6: // Ctrl-F
+            {
+                char *labels[] = { " Search text: " };
+                String *inputs = editor_input(editor, labels, 1);
+
+                if (inputs != NULL) {
+                    string_free(&(inputs[0]));
+                    free(inputs);
+                }
+            }
+            break;
+
         case 17: // Ctrl-Q
             running = false;
+            break;
+
+        case 18: // Ctrl-R
+            {
+                char *labels[] = { " Replace text: ", "    With text: " };
+                String *inputs = editor_input(editor, labels, 2);
+
+                if (inputs != NULL) {
+                    string_free(&(inputs[0]));
+                    string_free(&(inputs[1]));
+                    free(inputs);
+                }
+            }
             break;
 
         case 19: // Ctrl-S

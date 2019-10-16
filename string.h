@@ -28,5 +28,6 @@ void string_insert(String *string, char c, int position);
 char string_pop(String *string, int position);
 
 String string_copy(String string);
+void string_free(String *input);
 
 #endif
