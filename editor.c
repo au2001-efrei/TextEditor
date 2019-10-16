@@ -8,7 +8,7 @@
 void editor_display(Editor *editor) {
     clear();
     char *string = string_to_char_array(editor->string);
-    addstr(string);
+    mvaddstr(0, 0, string);
     free(string);
     move(editor->y, editor->x);
     refresh();

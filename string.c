@@ -240,6 +240,8 @@ char string_pop(String *string, int position) {
             string->last = NULL;
         }
 
+        --string->length;
+
         return c;
     }
 

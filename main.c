@@ -41,6 +41,14 @@ void run(Editor *editor) {
         int key = getch();
 
         switch (key) {
+        case 4: // Ctrl-D
+            {
+                char *line = string_get_line(editor->string, editor->y);
+                string_concatenate(&editor->string, line, string_get_offset(editor->string, editor->y));
+                free(line);
+            }
+            break;
+
         case 17: // Ctrl-Q
             running = false;
             break;
@@ -50,14 +58,6 @@ void run(Editor *editor) {
                 string_write_file(editor->file, editor->string);
             } else {
                 // TODO
-            }
-            break;
-
-        case 4: // Ctrl-D
-            {
-                char *line = string_get_line(editor->string, editor->y);
-                string_concatenate(&editor->string, line, string_get_offset(editor->string, editor->y));
-                free(line);
             }
             break;
 
@@ -116,15 +116,21 @@ void run(Editor *editor) {
             }
             break;
 
+        case '\n':
+            {
+                int position = string_get_offset(editor->string, editor->y) + editor->x;
+                string_insert(&editor->string, (char) key, position);
+
+                ++editor->y;
+                editor->x = 0;
+            }
+            break;
+
         default:
             if ((key >= 32 && key <= 126) || (key >= 128 && key <= 255)) {
                 int position = string_get_offset(editor->string, editor->y) + editor->x;
                 string_insert(&editor->string, (char) key, position);
-
-                if (key == '\n') {
-                    ++editor->y;
-                    editor->x = 0;
-                } else ++editor->x;
+                ++editor->x;
             } else {
                 clear();
                 printw("Unknow key (code %d): %c\n", key, key);
