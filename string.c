@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "string.h"
 
@@ -152,6 +153,36 @@ int string_get_line_length(String string, int y) {
     return length;
 }
 
+bool string_starts_with(Character *string, char *prefix) {
+    Character *current = string;
+    int length = strlen(prefix);
+    for (int i = 0; i < length; ++i) {
+        if (current == NULL || current->data != prefix[i])
+            return false;
+
+        current = current->next;
+    }
+
+    return true;
+}
+
+int string_search(String string, char *search, int position) {
+    Character *current = string.first;
+    for (int i = 0; i < position && current != NULL; ++i)
+        current = current->next;
+
+    int offset = 0;
+    while (current != NULL) {
+        if (string_starts_with(current, search))
+            return offset;
+
+        ++offset;
+        current = current->next;
+    }
+
+    return -1;
+}
+
 void string_insert(String *string, char c, int position) {
     if (position <= 0) {
         Character *temp = (Character *) malloc(sizeof(Character));
@@ -268,6 +299,39 @@ char string_pop(String *string, int position) {
     --string->length;
 
     return c;
+}
+
+int string_replace(String *string, char *search, char *replacement) {
+    int result = 0;
+
+    Character *current = string->first;
+    int position = 0;
+    while (current != NULL) {
+        if (string_starts_with(current, search)) {
+            current = current->prev;
+
+            int length = strlen(search);
+            for (int i = 0; i < length; ++i)
+                string_pop(string, position);
+
+            string_concatenate(string, replacement, position);
+            ++result;
+
+            if (current == NULL) current = string->first;
+            else current = current->next;
+
+            length = strlen(replacement);
+            for (int i = 0; i < length; ++i) {
+                current = current->next;
+                ++position;
+            }
+        } else {
+            ++position;
+            current = current->next;
+        }
+    }
+
+    return result;
 }
 
 String string_copy(String string) {

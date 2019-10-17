@@ -10,8 +10,8 @@ typedef struct Editor {
 } Editor;
 
 void editor_display(Editor *editor);
-
 void editor_display_input(Editor *editor, char **labels, int lines, String *input, int y, int x);
+
 String *editor_input(Editor *editor, char **labels, int lines);
 
 #endif
