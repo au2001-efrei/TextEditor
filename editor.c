@@ -64,7 +64,8 @@ String *editor_input(Editor *editor, char **labels, int lines) {
             inputs = NULL;
             break;
 
-        case 127: // Backspace
+        case 127: // Backspace (macOS)
+        case 263: // Backspace (Linux)
             if (x > 0 && string_pop(&(inputs[y]), x - 1) != '\0')
                 --x;
             break;

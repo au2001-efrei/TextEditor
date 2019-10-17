@@ -89,7 +89,11 @@ void run(Editor *editor) {
             }
             break;
 
-        case 127: // Backspace
+        case 27: // Escape
+            break;
+
+        case 127: // Backspace (macOS)
+        case 263: // Backspace (Linux)
             {
                 int position = string_get_offset(editor->string, editor->y) + editor->x;
                 if (position > 0) {
