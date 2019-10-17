@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 #include <stdbool.h>
 #include <ncurses.h>
 
@@ -26,7 +27,8 @@ int main(int argc, char *argv[]) {
     editor.y = 0;
 
     if (argc > 1) {
-        editor.file = argv[1];
+        editor.file = (char *) malloc(sizeof(char) * (strlen(argv[1]) + 1));
+        strcpy(editor.file, argv[1]);
         editor.string = string_read_file(editor.file);
     }
 
@@ -58,6 +60,24 @@ void run(Editor *editor) {
                 String *inputs = editor_input(editor, labels, 1);
 
                 if (inputs != NULL) {
+                    // TODO
+
+                    string_free(&(inputs[0]));
+                    free(inputs);
+                }
+            }
+            break;
+
+        case 15: // Ctrl-O
+            {
+                char *labels[] = { " Open file: " };
+                String *inputs = editor_input(editor, labels, 1);
+
+                if (inputs != NULL) {
+                    if (editor->file != NULL) free(editor->file);
+                    editor->file = string_to_char_array(inputs[0]);
+                    editor->string = string_read_file(editor->file);
+
                     string_free(&(inputs[0]));
                     free(inputs);
                 }
@@ -74,6 +94,8 @@ void run(Editor *editor) {
                 String *inputs = editor_input(editor, labels, 2);
 
                 if (inputs != NULL) {
+                    // TODO
+
                     string_free(&(inputs[0]));
                     string_free(&(inputs[1]));
                     free(inputs);
@@ -82,11 +104,19 @@ void run(Editor *editor) {
             break;
 
         case 19: // Ctrl-S
-            if (editor->file != NULL) {
-                string_write_file(editor->file, editor->string);
-            } else {
-                // TODO
+            if (editor->file == NULL) {
+                char *labels[] = { " Path to file to save: " };
+                String *inputs = editor_input(editor, labels, 1);
+
+                if (inputs != NULL) {
+                    editor->file = string_to_char_array(inputs[0]);
+
+                    string_free(&(inputs[0]));
+                    free(inputs);
+                } else break;
             }
+
+            string_write_file(editor->file, editor->string);
             break;
 
         case 27: // Escape
