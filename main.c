@@ -25,6 +25,7 @@ int main(int argc, char *argv[]) {
     editor.string.last = NULL;
     editor.x = 0;
     editor.y = 0;
+    editor.saved = true;
 
     if (argc > 1) {
         editor.file = (char *) malloc(sizeof(char) * (strlen(argv[1]) + 1));
@@ -51,6 +52,7 @@ void run(Editor *editor) {
                 char *line = string_get_line(editor->string, editor->y);
                 string_concatenate(&editor->string, line, string_get_offset(editor->string, editor->y));
                 free(line);
+                editor->saved = false;
             }
             break;
 
@@ -109,6 +111,7 @@ void run(Editor *editor) {
                     if (editor->file != NULL) free(editor->file);
                     editor->file = string_to_char_array(inputs[0]);
                     editor->string = string_read_file(editor->file);
+                    editor->saved = true;
 
                     string_free(&(inputs[0]));
                     free(inputs);
@@ -122,7 +125,8 @@ void run(Editor *editor) {
             break;
 
         case 17: // Ctrl-Q
-            running = false;
+            if (editor_check_saved(editor))
+                running = false;
             break;
 
         case 18: // Ctrl-R
@@ -157,6 +161,7 @@ void run(Editor *editor) {
 
                         labels[0] = (char *) malloc(sizeof(char) * (19 + ilength));
                         sprintf(labels[0], " %d matches replaced.", result);
+                        editor->saved = false;
                     } else {
                         labels[0] = " No match left to replace.";
                     }
@@ -184,6 +189,21 @@ void run(Editor *editor) {
             }
 
             string_write_file(editor->file, editor->string);
+            editor->saved = true;
+            break;
+
+        case 23: // Ctrl-W
+            if (editor_check_saved(editor)) {
+                if (editor->file != NULL) {
+                    free(editor->file);
+                    editor->file = NULL;
+                }
+
+                string_free(&editor->string);
+                editor->x = 0;
+                editor->y = 0;
+                editor->saved = true;
+            }
             break;
 
         case 27: // Escape
@@ -199,6 +219,7 @@ void run(Editor *editor) {
                         --editor->y;
                         editor->x = string_get_line_length(editor->string, editor->y) - length;
                     } else --editor->x;
+                    editor->saved = false;
                 }
             }
             break;
@@ -242,7 +263,8 @@ void run(Editor *editor) {
         case 330: // Delete
             {
                 int position = string_get_offset(editor->string, editor->y) + editor->x;
-                string_pop(&editor->string, position);
+                if (string_pop(&editor->string, position) != '\0')
+                    editor->saved = false;
             }
             break;
 
@@ -253,6 +275,7 @@ void run(Editor *editor) {
 
                 ++editor->y;
                 editor->x = 0;
+                editor->saved = false;
             }
             break;
 
@@ -261,6 +284,7 @@ void run(Editor *editor) {
                 int position = string_get_offset(editor->string, editor->y) + editor->x;
                 string_insert(&editor->string, (char) key, position);
                 ++editor->x;
+                editor->saved = false;
             } else {
                 clear();
                 printw("Unknow key (code %d): %c\n", key, key);

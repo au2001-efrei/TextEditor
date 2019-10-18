@@ -116,3 +116,43 @@ String *editor_input(Editor *editor, char **labels, int lines) {
 
     return inputs;
 }
+
+bool editor_check_saved(Editor *editor) {
+    if (editor->saved) return true;
+
+    if (editor->file == NULL) {
+        char *labels[] = { " Path to file to save (ESC to cancel, enter to discard changes): " };
+        String *inputs = editor_input(editor, labels, 1);
+
+        if (inputs != NULL) {
+            if (inputs[0].length > 0) {
+                editor->file = string_to_char_array(inputs[0]);
+                string_write_file(editor->file, editor->string);
+                editor->saved = true;
+            }
+
+            string_free(&(inputs[0]));
+            free(inputs);
+        } else return false;
+    } else {
+        char *result;
+        do {
+            char *labels[] = { " Save changes? (Yes/no, ESC to cancel) " };
+            String *inputs = editor_input(editor, labels, 1);
+
+            if (inputs != NULL) {
+                result = string_to_char_array(inputs[0]);
+
+                string_free(&(inputs[0]));
+                free(inputs);
+            } else return false;
+        } while (strlen(result) != 0 && result[0] != 'Y' && result[0] != 'y' && result[0] != 'N' && result[0] != 'n');
+
+        if (strlen(result) == 0 || result[0] == 'Y' || result[0] == 'y') {
+            string_write_file(editor->file, editor->string);
+            editor->saved = true;
+        }
+    }
+
+    return true;
+}
