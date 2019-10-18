@@ -136,42 +136,57 @@ void run(Editor *editor) {
                 String *inputs = editor_input(editor, labels, 2);
 
                 if (inputs != NULL) {
-                    char *search = string_to_char_array(inputs[0]);
-                    char *replacement = string_to_char_array(inputs[1]);
-                    string_free(&(inputs[0]));
-                    string_free(&(inputs[1]));
-                    free(inputs);
+                    if (inputs[0].length > 0) {
+                        char *search = string_to_char_array(inputs[0]);
+                        char *replacement = string_to_char_array(inputs[1]);
+                        string_free(&(inputs[0]));
+                        string_free(&(inputs[1]));
+                        free(inputs);
 
-                    int result = string_replace(&editor->string, search, replacement);
-                    free(search);
+                        int result = string_replace(&editor->string, search, replacement);
+                        free(search);
 
-                    int lines = string_get_line_count(editor->string) - 1;
-                    if (editor->y > lines) editor->y = lines;
-                    int length = string_get_line_length(editor->string, editor->y);
-                    if (editor->x > length) editor->x = length;
+                        int lines = string_get_line_count(editor->string) - 1;
+                        if (editor->y > lines) editor->y = lines;
+                        int length = string_get_line_length(editor->string, editor->y);
+                        if (editor->x > length) editor->x = length;
 
-                    editor_display(editor);
+                        editor_display(editor);
 
-                    char *labels[1];
-                    if (result > 0) {
-                        int i = result, ilength = 1;
-                        while (i >= 10) {
-                            i /= 10;
-                            ++ilength;
+                        char *labels[1];
+                        if (result > 0) {
+                            int i = result, ilength = 1;
+                            while (i >= 10) {
+                                i /= 10;
+                                ++ilength;
+                            }
+
+                            labels[0] = (char *) malloc(sizeof(char) * (19 + ilength));
+                            sprintf(labels[0], " %d matches replaced.", result);
+                            editor->saved = false;
+                        } else {
+                            labels[0] = " No match left to replace.";
                         }
 
-                        labels[0] = (char *) malloc(sizeof(char) * (19 + ilength));
-                        sprintf(labels[0], " %d matches replaced.", result);
-                        editor->saved = false;
+                        String inputs[] = { { 0, NULL, NULL } };
+                        editor_display_input(editor, labels, 1, inputs, 0, 0);
+                        move(LINES - 1, COLS - 1);
+                        refresh();
+                        sleep(1);
                     } else {
-                        labels[0] = " No match left to replace.";
-                    }
+                        string_free(&(inputs[0]));
+                        string_free(&(inputs[1]));
+                        free(inputs);
 
-                    String inputs[] = { { 0, NULL, NULL } };
-                    editor_display_input(editor, labels, 1, inputs, 0, 0);
-                    move(LINES - 1, COLS - 1);
-                    refresh();
-                    sleep(1);
+                        editor_display(editor);
+
+                        char *labels[] = { " Couldn't replace empty string." };
+                        String inputs[] = { { 0, NULL, NULL } };
+                        editor_display_input(editor, labels, 1, inputs, 0, 0);
+                        move(LINES - 1, COLS - 1);
+                        refresh();
+                        sleep(1);
+                    }
                 }
             }
             break;
