@@ -112,6 +112,11 @@ void run(Editor *editor) {
 
                     string_free(&(inputs[0]));
                     free(inputs);
+
+                    int lines = string_get_line_count(editor->string) - 1;
+                    if (editor->y > lines) editor->y = lines;
+                    int length = string_get_line_length(editor->string, editor->y);
+                    if (editor->x > length) editor->x = length;
                 }
             }
             break;
