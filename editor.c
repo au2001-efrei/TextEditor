@@ -118,6 +118,11 @@ String *editor_input(Editor *editor, char **labels, int lines) {
             string_pop(&(inputs[y]), x);
             break;
 
+        case '\t':
+            y = (y + 1) % lines;
+            x = inputs[y].length;
+            break;
+
         case '\n':
             if (y < lines - 1) {
                 ++y;

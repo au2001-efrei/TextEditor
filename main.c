@@ -283,6 +283,17 @@ void run(Editor *editor) {
             }
             break;
 
+        case '\t':
+            {
+                int position = string_get_offset(editor->string, editor->y) + editor->x;
+                do {
+                    string_insert(&editor->string, ' ', position++);
+                    ++editor->x;
+                } while (editor->x % 4 != 0);
+                editor->saved = false;
+            }
+            break;
+
         default:
             if ((key >= 32 && key <= 126) || (key >= 128 && key <= 255)) {
                 int position = string_get_offset(editor->string, editor->y) + editor->x;
