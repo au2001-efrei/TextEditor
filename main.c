@@ -43,6 +43,7 @@ void run(Editor *editor) {
     bool running = true;
     while (running) {
         editor_display(editor);
+        refresh();
 
         int key = getch();
 

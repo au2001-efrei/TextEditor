@@ -9,14 +9,35 @@
 
 void editor_display(Editor *editor) {
     clear();
-    char *string = string_to_char_array(editor->string);
-    mvaddstr(0, 0, string);
-    free(string);
-    move(editor->y, editor->x);
-    refresh();
+
+    int scrollX = 0, scrollY = 0;
+    while (editor->y - scrollY > LINES * 3 / 4)
+        scrollY += LINES / 2;
+    while (editor->x - scrollX > COLS * 3 / 4)
+        scrollX += COLS / 2;
+
+    int x = 0, y = 0;
+    Character *current = editor->string.first;
+    while (current != NULL) {
+        if (current->data == '\n') {
+            ++y;
+            x = 0;
+        } else {
+            if (y >= scrollY && y < scrollY + LINES && x >= scrollX && x < scrollX + COLS)
+                mvaddch(y - scrollY, x - scrollX, current->data);
+            ++x;
+        }
+        current = current->next;
+    }
+
+    move(editor->y - scrollY, editor->x - scrollX);
 }
 
 void editor_display_input(Editor *editor, char **labels, int lines, String *inputs, int y, int x) {
+    int scrollX = 0, width = COLS - strlen(labels[y]);
+    while (x - scrollX > width * 3 / 4)
+        scrollX += width / 2;
+
     for (int i = 0; i < lines; ++i) {
         int ly = LINES - lines + i, lx = 0;
 
@@ -25,10 +46,12 @@ void editor_display_input(Editor *editor, char **labels, int lines, String *inpu
         mvaddstr(ly, lx, labels[i]);
         lx += strlen(labels[i]);
 
-        char *string = string_to_char_array(inputs[i]);
-        mvaddstr(ly, lx, string);
-        free(string);
-        lx += inputs[i].length;
+        if (inputs[i].length > scrollX) {
+            char *string = string_to_char_array(inputs[i]);
+            mvaddstr(ly, lx, string + scrollX);
+            free(string);
+            lx += inputs[i].length - scrollX;
+        }
 
         while (lx < COLS)
             mvaddstr(ly, lx++, " ");
@@ -36,7 +59,7 @@ void editor_display_input(Editor *editor, char **labels, int lines, String *inpu
         attroff(A_REVERSE);
     }
 
-    move(LINES - lines + y, strlen(labels[y]) + x);
+    move(LINES - lines + y, strlen(labels[y]) + x - scrollX);
 }
 
 String *editor_input(Editor *editor, char **labels, int lines) {
@@ -52,6 +75,7 @@ String *editor_input(Editor *editor, char **labels, int lines) {
     while (running) {
         editor_display(editor);
         editor_display_input(editor, labels, lines, inputs, y, x);
+        refresh();
 
         int key = getch();
 
