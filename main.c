@@ -94,7 +94,7 @@ void run(Editor *editor) {
                         char *labels[] = { " No match left." };
                         String inputs[] = { { 0, NULL, NULL } };
                         editor_display_input(editor, labels, 1, inputs, 0, 0);
-                        move(editor->y, editor->x);
+                        move(LINES - 1, COLS - 1);
                         refresh();
                         sleep(1);
                     }
@@ -168,7 +168,7 @@ void run(Editor *editor) {
 
                     String inputs[] = { { 0, NULL, NULL } };
                     editor_display_input(editor, labels, 1, inputs, 0, 0);
-                    move(editor->y, editor->x);
+                    move(LINES - 1, COLS - 1);
                     refresh();
                     sleep(1);
                 }
@@ -266,6 +266,9 @@ void run(Editor *editor) {
                 if (string_pop(&editor->string, position) != '\0')
                     editor->saved = false;
             }
+            break;
+
+        case 410: // Resize
             break;
 
         case '\n':

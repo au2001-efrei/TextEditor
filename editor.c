@@ -101,6 +101,9 @@ String *editor_input(Editor *editor, char **labels, int lines) {
             } else running = false;
             break;
 
+        case 410: // Resize
+            break;
+
         default:
             if ((key >= 32 && key <= 126) || (key >= 128 && key <= 255)) {
                 string_insert(&(inputs[y]), (char) key, x);

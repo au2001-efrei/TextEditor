@@ -144,9 +144,8 @@ int string_get_line_length(String string, int y) {
     }
 
     int length = 0;
-    Character *current2 = current;
-    while (current2 != NULL && current2->data != '\n') {
-        current2 = current2->next;
+    while (current != NULL && current->data != '\n') {
+        current = current->next;
         ++length;
     }
 
