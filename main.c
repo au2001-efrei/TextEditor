@@ -194,9 +194,10 @@ void run(Editor *editor) {
             {
                 int position = string_get_offset(editor->string, editor->y) + editor->x;
                 if (position > 0) {
+                    int length = string_get_line_length(editor->string, editor->y);
                     if (string_pop(&editor->string, position - 1) == '\n') {
                         --editor->y;
-                        editor->x = string_get_line_length(editor->string, editor->y);
+                        editor->x = string_get_line_length(editor->string, editor->y) - length;
                     } else --editor->x;
                 }
             }
