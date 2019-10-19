@@ -80,6 +80,9 @@ String *editor_input(Editor *editor, char **labels, int lines) {
         int key = getch();
 
         switch (key) {
+        case -1: // No key
+            break;
+
         case 17: // Ctrl-Q
         case 27: // Escape
             running = false;

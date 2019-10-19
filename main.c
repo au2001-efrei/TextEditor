@@ -48,6 +48,9 @@ void run(Editor *editor) {
         int key = getch();
 
         switch (key) {
+        case -1: // No key
+            break;
+
         case 4: // Ctrl-D
             {
                 char *line = string_get_line(editor->string, editor->y);
