@@ -1,6 +1,8 @@
 #ifndef STRING_H
 #define STRING_H
 
+#include <stdbool.h>
+
 typedef struct Character {
     char data;
     struct Character *prev;

@@ -6,6 +6,7 @@
 #include <ncurses.h>
 
 #include "main.h"
+#include "yeet.h"
 #include "string.h"
 #include "editor.h"
 
@@ -55,8 +56,10 @@ void run(Editor *editor) {
             {
                 char *line = string_get_line(editor->string, editor->y);
                 string_concatenate(&editor->string, line, string_get_offset(editor->string, editor->y));
-                free(line);
+                ++editor->y;
                 editor->saved = false;
+                yeet(editor, line);
+                free(line);
             }
             break;
 
@@ -89,6 +92,8 @@ void run(Editor *editor) {
                             editor->x -= length;
                             length = string_get_line_length(editor->string, editor->y) + 1;
                         }
+
+                        yoot(editor, search);
                     } else {
                         editor->y = string_get_line_count(editor->string) - 1;
                         editor->x = string_get_line_length(editor->string, editor->y);
