@@ -82,7 +82,6 @@ void run(Editor *editor) {
 
                     int length = strlen(search);
                     int result = string_search(editor->string, search, offset);
-                    free(search);
 
                     if (result >= 0) {
                         editor->x += result + length + 1;
@@ -107,6 +106,8 @@ void run(Editor *editor) {
                         refresh();
                         sleep(1);
                     }
+
+                    free(search);
                 }
             }
             break;
