@@ -12,33 +12,32 @@ String string_read_file(char *path) {
     string.last = NULL;
 
     FILE *file = fopen(path, "r");
-
-    if (!file) {
-        return string;
-    }
+    if (!file) return string;
 
     Character *current = NULL;
 
     char c = fgetc(file);
-    while (!feof(file)) {
-        if (current == NULL) {
-            current = (Character *) malloc(sizeof(Character));
-            current->data = c;
-            current->next = NULL;
-            current->prev = NULL;
-        } else {
+    if (!feof(file)) {
+        current = (Character *) malloc(sizeof(Character));
+        current->data = c;
+        current->next = NULL;
+        current->prev = NULL;
+        string.first = current;
+        ++string.length;
+
+        c = fgetc(file);
+        while (!feof(file)) {
             current->next = (Character *) malloc(sizeof(Character));
             current->next->prev = current;
             current = current->next;
             current->data = c;
             current->next = NULL;
+            ++string.length;
+
+            c = fgetc(file);
         }
 
-        if (string.first == NULL) string.first = current;
         string.last = current;
-        ++string.length;
-
-        c = fgetc(file);
     }
 
     fclose(file);
@@ -58,6 +57,33 @@ void string_write_file(char *path, String string) {
     }
 
     fclose(file);
+}
+
+String string_from_char_array(char *string) {
+    String result;
+    result.length = strlen(string);
+    result.first = NULL;
+    result.last = NULL;
+
+    if (result.length > 0) {
+        Character *current = (Character *) malloc(sizeof(Character));
+        current->data = string[0];
+        current->next = NULL;
+        current->prev = NULL;
+        result.first = current;
+
+        for (int i = 1; i < result.length; ++i) {
+            current->next = (Character *) malloc(sizeof(Character));
+            current->next->prev = current;
+            current = current->next;
+            current->data = string[i];
+            current->next = NULL;
+        }
+
+        result.last = current;
+    }
+
+    return result;
 }
 
 char *string_to_char_array(String string) {
@@ -226,26 +252,58 @@ void string_concatenate(String *string, char *string2, int position) {
         }
     }
 
-    Character *next = position > 0 ? current->next : string->first;
+    Character *next = current != NULL ? current->next : string->first;
 
-    int length = strlen(string2);
-    for (int i = 0; i < length; ++i) {
-        if (current == NULL) {
-            current = (Character *) malloc(sizeof(Character));
-            current->data = string2[i];
-            current->next = NULL;
-            current->prev = NULL;
-            string->first = current;
-        } else {
-            current->next = (Character *) malloc(sizeof(Character));
-            current->next->prev = current;
-            current = current->next;
-            current->data = string2[i];
-            current->next = NULL;
-        }
-
-        ++string->length;
+    int i = 0, length = strlen(string2);
+    if (length > 0 && current == NULL) {
+        current = (Character *) malloc(sizeof(Character));
+        current->data = string2[0];
+        current->next = NULL;
+        current->prev = NULL;
+        string->first = current;
+        ++i;
     }
+
+    for (; i < length; ++i) {
+        current->next = (Character *) malloc(sizeof(Character));
+        current->next->prev = current;
+        current = current->next;
+        current->data = string2[i];
+        current->next = NULL;
+    }
+
+    string->length += length;
+
+    if (next == NULL) string->last = current;
+    else if (current != NULL) {
+        next->prev = current;
+        current->next = next;
+    }
+}
+
+void string_concatenate_string(String *string, String string2, int position) {
+    Character *current = NULL;
+
+    if (string->first != NULL && position > 0) {
+        current = string->first;
+
+        int i = 1;
+        while (i < position && current->next != NULL) {
+            current = current->next;
+            ++i;
+        }
+    }
+
+    Character *next = current != NULL ? current->next : string->first;
+
+    string2 = string_copy(string2);
+    if (current == NULL) {
+        string->first = string2.first;
+        current = string->first;
+    } else current->next = string2.first;
+
+    while (current->next != NULL)
+        current = current->next;
 
     if (next == NULL) string->last = current;
     else if (current != NULL) {
@@ -300,6 +358,15 @@ char string_pop(String *string, int position) {
     return c;
 }
 
+char *string_delete(String *string, int position, int length) {
+    char *result = (char *) malloc(sizeof(char) * length);
+
+    for (int i = 0; i < length; ++i)
+        result[i] = string_pop(string, position);
+
+    return result;
+}
+
 int string_replace(String *string, char *search, char *replacement) {
     int result = 0;
 
@@ -309,17 +376,14 @@ int string_replace(String *string, char *search, char *replacement) {
         if (string_starts_with(current, search)) {
             current = current->prev;
 
-            int length = strlen(search);
-            for (int i = 0; i < length; ++i)
-                string_pop(string, position);
-
+            free(string_delete(string, position, strlen(search)));
             string_concatenate(string, replacement, position);
             ++result;
 
             if (current == NULL) current = string->first;
             else current = current->next;
 
-            length = strlen(replacement);
+            int length = strlen(replacement);
             for (int i = 0; i < length; ++i) {
                 current = current->next;
                 ++position;
@@ -335,29 +399,29 @@ int string_replace(String *string, char *search, char *replacement) {
 
 String string_copy(String string) {
     String copy;
-
     copy.length = string.length;
     copy.first = NULL;
     copy.last = NULL;
 
     Character *current = NULL, *currentRead = string.first;
-    while (currentRead != NULL) {
-        if (current == NULL) {
-            current = (Character *) malloc(sizeof(Character));
-            current->data = currentRead->data;
-            current->next = NULL;
-            current->prev = NULL;
-            copy.first = current;
-        } else {
+    if (currentRead != NULL) {
+        current = (Character *) malloc(sizeof(Character));
+        current->data = currentRead->data;
+        current->next = NULL;
+        current->prev = NULL;
+        copy.first = current;
+        currentRead = currentRead->next;
+
+        while (currentRead != NULL) {
             current->next = (Character *) malloc(sizeof(Character));
             current->next->prev = current;
             current = current->next;
             current->data = currentRead->data;
             current->next = NULL;
+            currentRead = currentRead->next;
         }
 
         copy.last = current;
-        currentRead = currentRead->next;
     }
 
     return copy;

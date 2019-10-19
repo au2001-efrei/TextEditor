@@ -17,6 +17,7 @@ typedef struct String {
 
 String string_read_file(char *path);
 void string_write_file(char *path, String string);
+String string_from_char_array(char *string);
 
 char *string_to_char_array(String string);
 char *string_get_line(String string, int line);
@@ -28,8 +29,10 @@ bool string_starts_with(Character *string, char *prefix);
 int string_search(String string, char *search, int position);
 
 void string_concatenate(String *string, char *string2, int position);
+void string_concatenate_string(String *string, String string2, int position);
 void string_insert(String *string, char c, int position);
 char string_pop(String *string, int position);
+char *string_delete(String *string, int position, int length);
 int string_replace(String *string, char *search, char *replacement);
 
 String string_copy(String string);

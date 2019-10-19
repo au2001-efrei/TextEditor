@@ -59,7 +59,7 @@ void run(Editor *editor) {
             {
                 char *line = string_get_line(editor->string, editor->y);
                 string_free(&editor->clipboard);
-                string_concatenate(&editor->clipboard, line, 0);
+                editor->clipboard = string_from_char_array(line);
                 free(line);
             }
             break;
@@ -231,10 +231,8 @@ void run(Editor *editor) {
 
         case 22: // Ctrl-V
             {
-                char *line = string_to_char_array(editor->clipboard);
                 int position = string_get_offset(editor->string, editor->y) + editor->x;
-                string_concatenate(&editor->string, line, position);
-                free(line);
+                string_concatenate_string(&editor->string, editor->clipboard, position);
 
                 editor->x += editor->clipboard.length;
                 int length = string_get_line_length(editor->string, editor->y) + 1;
@@ -270,8 +268,7 @@ void run(Editor *editor) {
                 free(line);
 
                 int position = string_get_offset(editor->string, editor->y);
-                for (int i = 0; i < editor->clipboard.length; ++i)
-                    string_pop(&editor->string, position);
+                free(string_delete(&editor->string, position, editor->clipboard.length));
 
                 editor->x = 0;
                 editor->saved = false;
