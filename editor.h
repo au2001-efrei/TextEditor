@@ -6,6 +6,7 @@
 typedef struct Editor {
     char *file;
     String string;
+    String clipboard;
     int x, y;
     bool saved;
 } Editor;

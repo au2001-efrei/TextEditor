@@ -24,6 +24,9 @@ int main(int argc, char *argv[]) {
     editor.string.length = 0;
     editor.string.first = NULL;
     editor.string.last = NULL;
+    editor.clipboard.length = 0;
+    editor.clipboard.first = NULL;
+    editor.clipboard.last = NULL;
     editor.x = 0;
     editor.y = 0;
     editor.saved = true;
@@ -50,6 +53,15 @@ void run(Editor *editor) {
 
         switch (key) {
         case -1: // No key
+            break;
+
+        case 3: // Ctrl-C
+            {
+                char *line = string_get_line(editor->string, editor->y);
+                string_free(&editor->clipboard);
+                string_concatenate(&editor->clipboard, line, 0);
+                free(line);
+            }
             break;
 
         case 4: // Ctrl-D
@@ -217,6 +229,25 @@ void run(Editor *editor) {
             editor->saved = true;
             break;
 
+        case 22: // Ctrl-V
+            {
+                char *line = string_to_char_array(editor->clipboard);
+                int position = string_get_offset(editor->string, editor->y) + editor->x;
+                string_concatenate(&editor->string, line, position);
+                free(line);
+
+                editor->x += editor->clipboard.length;
+                int length = string_get_line_length(editor->string, editor->y) + 1;
+                while (editor->x >= length) {
+                    ++editor->y;
+                    editor->x -= length;
+                    length = string_get_line_length(editor->string, editor->y) + 1;
+                }
+
+                editor->saved = false;
+            }
+            break;
+
         case 23: // Ctrl-W
             if (editor_check_saved(editor)) {
                 if (editor->file != NULL) {
@@ -228,6 +259,22 @@ void run(Editor *editor) {
                 editor->x = 0;
                 editor->y = 0;
                 editor->saved = true;
+            }
+            break;
+
+        case 24: // Ctrl-X
+            {
+                char *line = string_get_line(editor->string, editor->y);
+                string_free(&editor->clipboard);
+                string_concatenate(&editor->clipboard, line, 0);
+                free(line);
+
+                int position = string_get_offset(editor->string, editor->y);
+                for (int i = 0; i < editor->clipboard.length; ++i)
+                    string_pop(&editor->string, position);
+
+                editor->x = 0;
+                editor->saved = false;
             }
             break;
 
