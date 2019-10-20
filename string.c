@@ -282,6 +282,8 @@ void string_concatenate(String *string, char *string2, int position) {
 }
 
 void string_concatenate_string(String *string, String string2, int position) {
+    if (string2.first == NULL) return;
+
     Character *current = NULL;
 
     if (string->first != NULL && position > 0) {
@@ -395,6 +397,21 @@ int string_replace(String *string, char *search, char *replacement) {
     }
 
     return result;
+}
+
+void string_reverse(String *string) {
+    Character *current = string->first, *current2 = NULL;
+
+    while (current != NULL) {
+        current2 = current;
+        current = current2->prev;
+        current2->prev = current2->next;
+        current2->next = current;
+        current = current2->prev;
+    }
+
+    string->last = string->first;
+    string->first = current2;
 }
 
 String string_copy(String string) {

@@ -34,6 +34,7 @@ void string_insert(String *string, char c, int position);
 char string_pop(String *string, int position);
 char *string_delete(String *string, int position, int length);
 int string_replace(String *string, char *search, char *replacement);
+void string_reverse(String *string);
 
 String string_copy(String string);
 void string_free(String *input);

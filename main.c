@@ -146,6 +146,24 @@ void run(Editor *editor) {
             }
             break;
 
+        case 16: // Ctrl-P
+            {
+                char *line = string_get_line(editor->string, editor->y);
+                String reversed = string_from_char_array(line);
+                free(line);
+
+                string_reverse(&reversed);
+                string_pop(&reversed, 0);
+
+                int position = string_get_offset(editor->string, editor->y);
+                free(string_delete(&editor->string, position, reversed.length));
+                string_concatenate_string(&editor->string, reversed, position);
+                string_free(&reversed);
+
+                editor->saved = false;
+            }
+            break;
+
         case 17: // Ctrl-Q
             if (editor_check_saved(editor))
                 running = false;
