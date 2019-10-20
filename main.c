@@ -45,6 +45,7 @@ int main(int argc, char *argv[]) {
 
 void run(Editor *editor) {
     bool running = true;
+    int yaatd = 0;
     while (running) {
         editor_display(editor);
         refresh();
@@ -393,10 +394,13 @@ void run(Editor *editor) {
                 sleep(1);
             }
         }
+
+        yaat(&yaatd, key);
     }
 }
 
 void quit(int error) {
+    attroff(A_BOLD);
     endwin();
     exit(error);
 }
